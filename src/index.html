@@ -1,32 +1,245 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="styles.css" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus App</title>
-        <script type="module" src="/main.js" defer></script>
-    </head>
-
-    <body>
-        <main class="container">
-            <h1>Welcome to PakePlus</h1>
-            <form class="row" id="greet-form">
-                <input id="inputValue" placeholder="Enter a something..." />
-            </form>
-            <div class="resultBox">
-                <span>result: </span>
-                <span id="result"></span>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商店管理系统</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- QR Code Generator - 使用本地文件 -->
+    <!-- 条形码扫描库 - 使用本地文件 -->
+    <!-- Chart.js - 使用本地文件 -->
+    
+    <script>
+        // Tailwind配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#22c55e', // 绿色主题
+                        secondary: '#3b82f6',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        info: '#06b6d4',
+                        dark: '#1e293b',
+                        light: '#f8fafc'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .shadow-soft {
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen">
+    <!-- 页面容器 -->
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-md">
+        <!-- 登录页面 -->
+        <div id="login-page" class="p-6">
+            <div class="text-center mb-10">
+                <h1 class="text-[clamp(1.5rem,5vw,2.5rem)] font-bold text-primary mb-2">商店管理系统</h1>
+                <p class="text-gray-500">请登录您的账号</p>
             </div>
-            <div class="invokeBox">
-                <button id="openUrl">open_url_browser</button>
-                <button id="openUrlNew">open_url_new</button>
-                <button id="runCommand">run_command</button>
-                <button id="downloadFile">download_file</button>
-                <button id="getExeDir">get_exe_dir</button>
-                <button id="getEnvVar">get_env_var</button>
-                <button id="findPort">find_port</button>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">用户名</label>
+                    <input type="text" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-300" placeholder="请输入用户名" value="admin">
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">密码</label>
+                    <input type="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-300" placeholder="请输入密码" value="admin123">
+                </div>
+                
+                <button id="login-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition duration-300 transform hover:scale-[1.02] active:scale-[0.98]">
+                    登录
+                </button>
+                
+                <div id="login-error" class="hidden text-center text-danger py-2 rounded-lg bg-danger/10"></div>
             </div>
-        </main>
-    </body>
+        </div>
+        
+        <!-- 修改密码页面 -->
+        <div id="change-password-page" class="p-6 hidden">
+            <div class="flex items-center mb-6">
+                <button id="back-to-login" class="p-2 -ml-2">
+                    <i class="fa fa-arrow-left text-gray-500"></i>
+                </button>
+                <h1 class="text-xl font-bold text-center flex-1">修改密码</h1>
+                <div class="w-8"></div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label for="current-password" class="block text-sm font-medium text-gray-700 mb-1">当前密码</label>
+                    <input type="password" id="current-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-300" placeholder="请输入当前密码">
+                </div>
+                
+                <div>
+                    <label for="new-password" class="block text-sm font-medium text-gray-700 mb-1">新密码</label>
+                    <input type="password" id="new-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-300" placeholder="请输入新密码">
+                </div>
+                
+                <div>
+                    <label for="confirm-password" class="block text-sm font-medium text-gray-700 mb-1">确认新密码</label>
+                    <input type="password" id="confirm-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-300" placeholder="请再次输入新密码">
+                </div>
+                
+                <button id="save-password-btn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2 px-4 rounded-lg transition duration-300 transform hover:scale-[1.02] active:scale-[0.98]">
+                    保存新密码
+                </button>
+                
+                <div id="password-error" class="hidden text-center text-danger py-2 rounded-lg bg-danger/10"></div>
+            </div>
+        </div>
+        
+        <!-- 主页面框架 -->
+        <div id="main-page" class="hidden">
+            <!-- 页面头部 -->
+            <header class="bg-primary text-white shadow-md">
+                <div class="flex items-center justify-between p-4">
+                    <button id="menu-toggle" class="p-2">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <h1 class="text-xl font-bold">商品出入库系统</h1>
+                    <button id="user-menu" class="p-2">
+                        <i class="fa fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- 内容区域 - 将通过JavaScript动态生成 -->
+            <main id="content" class="p-4">
+                <!-- 内容将通过JavaScript动态生成 -->
+            </main>
+        </div>
+    </div>
+    
+    <!-- 侧边菜单 -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl transform -translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="flex flex-col h-full">
+            <div class="p-4 border-b">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center mr-3">
+                        <i class="fa fa-shopping-bag text-white"></i>
+                    </div>
+                    <h2 class="text-lg font-bold">商店管理系统</h2>
+                </div>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto p-2">
+                <ul class="space-y-1">
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg bg-gray-100 text-primary">
+                            <i class="fa fa-home w-6"></i>
+                            <span class="ml-3">首页</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-sign-in w-6"></i>
+                            <span class="ml-3">扫码入库</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-sign-out w-6"></i>
+                            <span class="ml-3">扫码出库</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-cubes w-6"></i>
+                            <span class="ml-3">商品管理</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-barcode w-6"></i>
+                            <span class="ml-3">二维码制作</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-database w-6"></i>
+                            <span class="ml-3">数据备份</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="flex items-center p-3 rounded-lg hover:bg-gray-100 transition-colors">
+                            <i class="fa fa-line-chart w-6"></i>
+                            <span class="ml-3">数据报表</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="p-4 border-t">
+                <button id="logout-btn" class="flex items-center justify-center w-full p-3 rounded-lg bg-red-50 text-danger hover:bg-red-100 transition-colors">
+                    <i class="fa fa-sign-out mr-2"></i>
+                    <span>退出登录</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 遮罩层 -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300"></div>
+    
+    <!-- 加载状态 -->
+    <div id="loading" class="fixed inset-0 z-50 flex items-center justify-center bg-black/30 hidden">
+        <div class="bg-white rounded-lg p-6 flex flex-col items-center">
+            <div class="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-3"></div>
+            <p id="loading-text" class="text-gray-700">加载中...</p>
+        </div>
+    </div>
+    
+    <!-- 消息提示 -->
+    <div id="toast" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-lg shadow-lg hidden transition-all duration-300 opacity-0">
+        <div class="flex items-center">
+            <i id="toast-icon" class="mr-2"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+    
+    <!-- JavaScript文件 -->
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/scan.js"></script>
+    <script src="js/product.js"></script>
+    <script src="js/qrcode.js"></script>
+    <script src="js/backup.js"></script>
+    
+    <!-- 初始化应用 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.initApp) {
+                window.initApp();
+            }
+        });
+    </script>
+</body>
 </html>
